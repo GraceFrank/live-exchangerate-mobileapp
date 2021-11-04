@@ -6,7 +6,6 @@ import { StyleSheet, Text, View } from "react-native";
 import { ListItem, Avatar, Header } from "react-native-elements";
 import { LinearProgress } from "react-native-elements";
 const avatarSource = "https://cryptoicon-api.vercel.app/api/icon/";
-
 const socket = io("http://127.0.0.1:5000/");
 
 export default function App() {
@@ -33,17 +32,8 @@ export default function App() {
   });
 
   useEffect(() => {
-    // var ws = new WebSocket("ws://127.0.0.1:5000/");
-
-    // setLoading(true);
-    // ws.onmessage = (e) => {
-    //   // a message was received
-    //   console.log(e.data);
-    //   setLoading(false);
-    // };
-
     socket.on("connection", (socket) => {
-      console.log("LOOOgeeDDDDD", socket.handshake.headers); // an object containing "my-custom-header": "1234"
+      console.log("connection successful");
     });
     socket.on("exchangeRateUpdate", (payload) => {
       setLoading(false);
