@@ -4,31 +4,49 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import io from "socket.io-client";
 import { StyleSheet, Text, View } from "react-native";
 import { ListItem, Avatar, Header } from "react-native-elements";
-import images from "./assets/images";
+import { LinearProgress } from "react-native-elements";
+const avatarSource = "https://cryptoicon-api.vercel.app/api/icon/";
 
-import { render } from "react-dom";
-// import { API_BASE_URL } from "react-native-dotenv";
-const socket = io.connect("http://localhost:5000/");
+const socket = io("http://127.0.0.1:5000/");
 
 export default function App() {
   const [exchangeRates, setExchangeRates] = useState([]);
+  const [loading, setLoading] = useState([]);
 
   const renderExchangeRates = exchangeRates.map(({ ticker }, i) => {
     return (
       <ListItem key={i} bottomDivider>
-        <Avatar source={images[ticker.base]} />
+        <Avatar
+          source={{
+            uri: `${avatarSource}${String(ticker.base).toLowerCase()}`,
+          }}
+        />
         <ListItem.Content>
           <ListItem.Title>{ticker.base}</ListItem.Title>
           <ListItem.Subtitle>
             ${Number(ticker.price).toLocaleString()}
           </ListItem.Subtitle>
         </ListItem.Content>
+        <Text>{ticker.volume}</Text>
       </ListItem>
     );
   });
 
   useEffect(() => {
+    // var ws = new WebSocket("ws://127.0.0.1:5000/");
+
+    // setLoading(true);
+    // ws.onmessage = (e) => {
+    //   // a message was received
+    //   console.log(e.data);
+    //   setLoading(false);
+    // };
+
+    socket.on("connection", (socket) => {
+      console.log("LOOOgeeDDDDD", socket.handshake.headers); // an object containing "my-custom-header": "1234"
+    });
     socket.on("exchangeRateUpdate", (payload) => {
+      setLoading(false);
       setExchangeRates(payload);
       console.log(payload);
     });
@@ -44,6 +62,14 @@ export default function App() {
           containerStyle={styles.header}
         />
         <StatusBar style="auto" />
+        {loading && (
+          <View>
+            <LinearProgress color="secondary" />
+            <Text style={{ textAlign: "center", color: "white" }}>
+              Loading...
+            </Text>
+          </View>
+        )}
         {renderExchangeRates}
       </View>
     </SafeAreaProvider>
